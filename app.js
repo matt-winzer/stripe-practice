@@ -36,6 +36,13 @@ app.post('/checkout', async (req, res) => {
         amount: 500,
         currency: 'usd',
         quantity: 1,
+      }, {
+        name: 'T-shirt',
+        description: 'Another great cotton t-shirt',
+        images: ['http://lorempixel.com/400/200/food/'],
+        amount: 1000,
+        currency: 'usd',
+        quantity: 1,
       }],
       success_url: 'http://localhost:3000/success',
       cancel_url: 'http://localhost:3000/cancel',
@@ -50,6 +57,14 @@ app.post('/checkout', async (req, res) => {
       error: error
     })
   }
+})
+
+app.get('/success', (req, res) => {
+  res.render('success')
+})
+
+app.get('/cancel', (req, res) => {
+  res.render('cancel')
 })
 
 
