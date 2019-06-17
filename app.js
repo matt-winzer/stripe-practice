@@ -1,10 +1,11 @@
 require('dotenv').config()
-const express     = require('express')
-const stripe      = require('stripe')(process.env.STRIPE_SECRET_KEY)
-const bodyParser  = require('body-parser')
-const morgan      = require('morgan')
-const exphbs      = require('express-handlebars')
-const PORT        = process.env.PORT || 3000
+const express         = require('express')
+const stripe          = require('stripe')(process.env.STRIPE_SECRET_KEY)
+const bodyParser      = require('body-parser')
+const morgan          = require('morgan')
+const exphbs          = require('express-handlebars')
+const PORT            = process.env.PORT || 3000
+const endpointSecret  = process.env.STRIPE_ENDPOINT_SECRET
 
 const app = express()
 
@@ -13,6 +14,7 @@ app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
 
 // Middleware
+app.use('/webhooks/checkout', bodyParser.raw({ type: 'application/json' })) // Use raw body parsing for stripe webhooks
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(morgan('dev'))
@@ -52,7 +54,6 @@ app.post('/checkout', async (req, res) => {
     })
   }
   catch (error) {
-    console.log('STRIPE SESSION ERROR', error)
     res.status(400).json({
       error: error
     })
@@ -65,6 +66,28 @@ app.get('/success', (req, res) => {
 
 app.get('/cancel', (req, res) => {
   res.render('cancel')
+})
+
+app.post('/webhooks/checkout', (request, response) => {
+  const sig = request.headers['stripe-signature']
+  let event
+
+  try {
+    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret)
+  } catch (err) {
+    return response.status(400).send(`Webhook Error: ${err.message}`)
+  }
+
+  // Handle the checkout.session.completed event
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object
+
+    // Fulfill the purchase...
+    console.log('checkout session data', session)
+  }
+
+  // Return a response to acknowledge receipt of the event
+  response.json({ received: true })
 })
 
 
