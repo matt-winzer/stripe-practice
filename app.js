@@ -25,6 +25,33 @@ app.get('/', (req, res) => {
   res.render('index')
 })
 
+app.post('/checkout', async (req, res) => {
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        name: 'T-shirt',
+        description: 'Comfortable cotton t-shirt',
+        images: ['http://lorempixel.com/400/200/sports/'],
+        amount: 500,
+        currency: 'usd',
+        quantity: 1,
+      }],
+      success_url: 'http://localhost:3000/success',
+      cancel_url: 'http://localhost:3000/cancel',
+    })
+    res.json({
+      session
+    })
+  }
+  catch (error) {
+    console.log('STRIPE SESSION ERROR', error)
+    res.status(400).json({
+      error: error
+    })
+  }
+})
+
 
 
 app.listen(PORT, () => console.log(`Server running on port: ${PORT}`))
