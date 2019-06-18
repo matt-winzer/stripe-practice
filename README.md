@@ -16,7 +16,9 @@ These instructions will get you a copy of the project up and running on your loc
 ### Installing
 1. Fork/clone this repository
 2. Install project dependencies
-```$ npm install```
+```
+$ npm install
+```
 
 ### Configuring Stripe
 1. Retrieve secret key from stripe account [dashboard](https://dashboard.stripe.com/test/apikeys)
@@ -27,12 +29,16 @@ STRIPE_SECRET_KEY=sk_test_asdasdasdasd
 ```
 4. Create a webhook from stripe account [dashboard](https://dashboard.stripe.com/test/webhooks)
 ```
-* Endpoint: /webhooks/checkout
-* Event Type: checkout.session.completed
- ```
-5. In test mode, you will need to use a tool like [ngrok](https://www.npmjs.com/package/ngrok) to simulate a live https connection for the webhook to work. However, the application will still work without the webhook.
+Endpoint: /webhooks/checkout
+Event Type: checkout.session.completed
+```
+5. Add webhook signing secret to .env, ex:
+```
+STRIPE_ENDPOINT_SECRET=whsec_asdasdasdasd
+```
+5. In test mode, you will need to use a tool like [ngrok](https://www.npmjs.com/package/ngrok) to simulate a live https connection for the webhook to work. The application will still work without the webhook, but the redirect on successful payment will take longer.
 
 ## Running
-1. Run application `$ npm start` OR `$ npm run dev`
+1. Run application: `$ npm start` OR `$ npm run dev`
 2. Navigate to http://localhost:3000/ in browser
 3. Click the `purchase` button to initiate a purchase using stripe
